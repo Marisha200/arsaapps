@@ -3,82 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de SSIM</title>
+    <title>Calculadora SSIM - ARSA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f7f9;
-            margin: 0;
-        }
-        .container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            text-align: center;
-            width: 90%;
-            max-width: 450px;
-        }
-        h2 {
-            color: #333;
-            margin-top: 0;
-        }
-        label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #555;
-        }
-        input[type="date"] {
-            width: calc(100% - 24px);
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            margin-bottom: 1rem;
-            font-size: 1rem;
-        }
-        button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        #resultado {
-            margin-top: 1.5rem;
-            font-size: 1.1rem;
-            background-color: #e9ecef;
-            padding: 1rem;
-            border-radius: 8px;
-            color: #2c3e50;
-        }
-        #explicacion {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-top: 0.5rem;
+            font-family: 'Inter', sans-serif;
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800">
 
-<div class="container">
-    <h2>Calculadora de Archivo SSIM</h2>
-    <label for="fechaVuelo">Ingresa la fecha del vuelo:</label>
-    <input type="date" id="fechaVuelo" value="2025-08-20">
-    <button onclick="calcularSSIM()">Calcular</button>
-    <div id="resultado">
+    <!-- Encabezado azul con botón de volver -->
+    <header class="bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg relative">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 text-center">
+            <!-- Botón Volver -->
+            <a href="index.html" class="absolute top-1/2 left-4 sm:left-6 lg:left-8 -translate-y-1/2 text-white hover:bg-white/20 p-2 rounded-full transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">Calculadora SSIM</h1>
         </div>
-</div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-lg mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6 text-center">Calcular Archivo SSIM</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label for="fechaVuelo" class="block text-sm font-medium text-gray-700 mb-1">Ingresa la fecha del vuelo:</label>
+                        <input type="date" id="fechaVuelo" value="2025-08-20" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <button onclick="calcularSSIM()" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300">
+                        Calcular
+                    </button>
+                </div>
+
+                <div id="resultado" class="mt-6 p-4 bg-gray-100 rounded-lg text-center text-gray-700 min-h-[80px] flex items-center justify-center">
+                    <!-- El resultado aparecerá aquí -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-4 text-sm text-gray-500">
+        <p>Marina - ARSA</p>
+    </footer>
 
 <script>
     function formatearFecha(fecha) {
@@ -88,47 +63,46 @@
     function calcularSSIM() {
         const fechaInput = document.getElementById('fechaVuelo').value;
         if (!fechaInput) {
-            document.getElementById('resultado').innerHTML = 'Por favor, selecciona una fecha.';
+            document.getElementById('resultado').innerHTML = '<p>Por favor, selecciona una fecha.</p>';
             return;
         }
 
         // --- LÓGICA CORRECTA: BUSCAR HACIA ATRÁS 30-45 DÍAS ---
-
-        // 1. Establecer las fechas de la ventana de búsqueda
         const fechaVuelo = new Date(fechaInput + 'T00:00:00');
         const limiteSuperior = new Date(fechaVuelo);
-        limiteSuperior.setDate(fechaVuelo.getDate() - 30); // Límite más cercano: 30 días antes
+        limiteSuperior.setDate(fechaVuelo.getDate() - 30);
 
         const limiteInferior = new Date(fechaVuelo);
-        limiteInferior.setDate(fechaVuelo.getDate() - 45); // Límite más lejano: 45 días antes
+        limiteInferior.setDate(fechaVuelo.getDate() - 45);
 
-        // 2. Identificar las fechas candidatas de SSIM alrededor de la ventana
         let mes = limiteSuperior.getMonth();
         let anio = limiteSuperior.getFullYear();
         
         const candidatos = [
             new Date(anio, mes, 20),
             new Date(anio, mes, 5),
-            new Date(anio, mes - 1, 20) // Día 20 del mes anterior
+            new Date(anio, mes - 1, 20)
         ];
         
         let fechaSSIMEncontrada = null;
 
-        // 3. Encontrar cuál de los candidatos cae dentro de la ventana
         for (const candidato of candidatos) {
             if (candidato >= limiteInferior && candidato <= limiteSuperior) {
                 fechaSSIMEncontrada = candidato;
-                break; // Encontramos el correcto, no necesitamos seguir buscando
+                break;
             }
         }
 
-        // 4. Mostrar el resultado
         const resultadoDiv = document.getElementById('resultado');
         if (fechaSSIMEncontrada) {
-            resultadoDiv.innerHTML = `El vuelo debe estar en el SSIM del <strong>${formatearFecha(fechaSSIMEncontrada)}</strong>.
-            <div id="explicacion">Este archivo se generó entre 30 y 45 días antes del vuelo.</div>`;
+            resultadoDiv.innerHTML = `
+                <div class="text-gray-800">
+                    <p class="font-semibold text-sm sm:text-base">El vuelo debe estar en el SSIM del:</p>
+                    <p class="text-lg sm:text-xl font-bold text-blue-600 mt-1">${formatearFecha(fechaSSIMEncontrada)}</p>
+                    <p id="explicacion" class="text-xs text-gray-500 mt-2">Este archivo se generó entre 30 y 45 días antes del vuelo.</p>
+                </div>`;
         } else {
-            resultadoDiv.innerHTML = 'No se pudo encontrar un SSIM en la ventana de 30-45 días.';
+            resultadoDiv.innerHTML = '<p class="text-red-600 font-semibold">No se pudo encontrar un SSIM en la ventana de 30-45 días.</p>';
         }
     }
 
@@ -138,3 +112,4 @@
 
 </body>
 </html>
+
