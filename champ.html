@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mensajería CHAMP - ARSA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Encabezado azul con botón de volver -->
+    <header class="bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg relative">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 text-center">
+            <a href="index.html" class="absolute top-1/2 left-4 sm:left-6 lg:left-8 -translate-y-1/2 text-white hover:bg-white/20 p-2 rounded-full transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">Mensajería CHAMP</h1>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2 text-center">Extractor de Datos XML (FWB)</h2>
+                <p class="text-center text-gray-600 mb-6">Pega el contenido de uno o más archivos XML para generar una planilla.</p>
+                
+                <textarea id="xmlInput" rows="15" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow mb-4" placeholder="Pega aquí el contenido de tus archivos XML..."></textarea>
+
+                <div class="flex flex-wrap items-center justify-center gap-3 mb-4">
+                    <button id="processBtn" class="bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Procesar XML
+                    </button>
+                    <button id="clearBtn" class="bg-gray-500 text-white font-semibold py-2 px-5 rounded-lg hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        Limpiar Todo
+                    </button>
+                    <button id="filterBtn" class="bg-yellow-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-yellow-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                        Mostrar solo incorrectos
+                    </button>
+                    <button id="copyBtn" class="bg-green-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        Copiar Tabla
+                    </button>
+                    <button id="exportBtn" class="bg-teal-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-teal-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
+                        Exportar a XLS
+                    </button>
+                </div>
+                <div id="statusMessage" class="text-center text-sm text-gray-600 min-h-[20px]"></div>
+
+                <div class="mt-8 overflow-x-auto">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Resultados</h3>
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <table id="resultsTable" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Fecha</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">From</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">To</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">AWB</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Origen</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Destino</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Los resultados se insertarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <p id="noResults" class="text-center text-gray-500 py-8">Aún no hay datos para mostrar.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-4 text-sm text-gray-500">
+        <p>Marina - ARSA</p>
+    </footer>
+    
+    <script>
+        const processBtn = document.getElementById('processBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const filterBtn = document.getElementById('filterBtn');
+        const xmlInput = document.getElementById('xmlInput');
+        const tableBody = document.getElementById('resultsTableBody');
+        const statusMessage = document.getElementById('statusMessage');
+        const noResults = document.getElementById('noResults');
+        let isFilterActive = false;
+
+        processBtn.addEventListener('click', processXMLs);
+        clearBtn.addEventListener('click', clearAll);
+        copyBtn.addEventListener('click', copyTableToClipboard);
+        exportBtn.addEventListener('click', exportToXLS);
+        filterBtn.addEventListener('click', toggleFilter);
+
+        function showStatus(message, type = 'info') {
+            statusMessage.textContent = message;
+            statusMessage.className = 'text-center text-sm min-h-[20px]'; // Reset classes
+            if (type === 'success') {
+                statusMessage.classList.add('text-green-600');
+            } else if (type === 'error') {
+                statusMessage.classList.add('text-red-600');
+            } else {
+                statusMessage.classList.add('text-gray-600');
+            }
+        }
+
+        function updateTableVisibility() {
+            const tableContainer = document.getElementById('resultsTable').closest('.border');
+            if (tableBody.rows.length > 0) {
+                noResults.style.display = 'none';
+                tableContainer.style.display = 'block';
+            } else {
+                noResults.style.display = 'block';
+                tableContainer.style.display = 'none';
+            }
+        }
+
+        function processXMLs() {
+            const rawText = xmlInput.value;
+            if (!rawText.trim()) {
+                showStatus('El campo de XML está vacío.', 'error');
+                return;
+            }
+            tableBody.innerHTML = '';
+
+            const forbiddenDestinations = ['EZE', 'AEP', 'MDZ', 'MDQ', 'SLA', 'COR', 'IGR', 'RGA', 'USH'];
+            const xmlRegex = /<\?xml[\s\S]+?<\/Message>/g;
+            let xmlStrings = rawText.match(xmlRegex);
+
+            if (!xmlStrings) {
+                xmlStrings = [];
+            }
+            if (xmlStrings.length === 0 && rawText.trim().startsWith('<')) {
+                xmlStrings.push(rawText.trim());
+            }
+
+            let processedCount = 0;
+            let errorCount = 0;
+            let correctCount = 0;
+            let incorrectCount = 0;
+
+            if (xmlStrings.length === 0) {
+                showStatus('No se encontró contenido con formato XML para procesar.', 'error');
+                updateTableVisibility();
+                return;
+            }
+
+            const parser = new DOMParser();
+            xmlStrings.forEach(xmlString => {
+                if (!xmlString) return;
+                
+                const cleanXmlString = xmlString.replace(/""/g, '"');
+
+                try {
+                    const xmlDoc = parser.parseFromString(cleanXmlString, "application/xml");
+                    const parserError = xmlDoc.querySelector("parsererror");
+                    if (parserError) {
+                        console.error("Error de parseo XML:", parserError.textContent);
+                        console.error("XML con error:", cleanXmlString);
+                        throw new Error("XML mal formado.");
+                    }
+
+                    const getTagValue = (tagName) => {
+                        const tags = xmlDoc.querySelectorAll(tagName);
+                        return tags.length > 0 ? tags[tags.length - 1].textContent.trim() : 'N/A';
+                    };
+                    
+                    const day = getTagValue('DateOfMonth');
+                    const month = getTagValue('Month');
+                    const year = getTagValue('Year');
+                    const date = (day !== 'N/A' && month !== 'N/A' && year !== 'N/A') ? `${day}/${month}/${year}` : 'N/A';
+                    const from = getTagValue('From');
+                    const to = getTagValue('To');
+                    const airlinePrefix = getTagValue('AirlinePrefix');
+                    const awbSerial = getTagValue('AwbSerialNumber');
+                    const awb = (airlinePrefix !== 'N/A' && awbSerial !== 'N/A') ? `${airlinePrefix}-${awbSerial}` : 'N/A';
+                    const orgAirpCode = getTagValue('orgAirpCode');
+                    const dstAirpCode = getTagValue('dstAirpCode');
+
+                    if ([date, from, to, awb, orgAirpCode, dstAirpCode].some(val => val !== 'N/A')) {
+                       const isIncorrect = forbiddenDestinations.includes(dstAirpCode.toUpperCase());
+                       let statusCellHtml = '';
+                       
+                       const row = tableBody.insertRow();
+                       row.dataset.status = isIncorrect ? 'incorrect' : 'correct';
+
+                       if (isIncorrect) {
+                           incorrectCount++;
+                           statusCellHtml = `<td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">NO CORRESPONDE ENVIAR</td>`;
+                       } else {
+                           correctCount++;
+                           statusCellHtml = `<td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-bold">OK</td>`;
+                       }
+
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${date}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${from}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${to}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">${awb}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${orgAirpCode}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${dstAirpCode}</td>
+                            ${statusCellHtml}
+                        `;
+                        processedCount++;
+                    }
+                } catch (e) {
+                    console.error("Error procesando un XML:", e);
+                    errorCount++;
+                }
+            });
+
+            if (processedCount > 0) {
+                 showStatus(`Procesados ${processedCount} mensajes. Correctos: ${correctCount}, Incorrectos: ${incorrectCount}. ${errorCount > 0 ? `(${errorCount} con error de formato)` : ''}`, 'success');
+            } else if (errorCount > 0) {
+                 showStatus(`No se pudo procesar ningún mensaje. Se encontraron ${errorCount} con errores de formato.`, 'error');
+            } else if (processedCount === 0 && errorCount === 0) {
+                showStatus('Procesamiento finalizado. No se encontraron datos relevantes para extraer.', 'info');
+            }
+            updateTableVisibility();
+        }
+
+        function clearAll() {
+            xmlInput.value = '';
+            tableBody.innerHTML = '';
+            showStatus('');
+            if (isFilterActive) {
+                toggleFilter(); 
+            }
+            updateTableVisibility();
+        }
+
+        function toggleFilter() {
+            isFilterActive = !isFilterActive;
+            const rows = tableBody.getElementsByTagName('tr');
+            
+            for (const row of rows) {
+                if (isFilterActive && row.dataset.status === 'correct') {
+                    row.style.display = 'none';
+                } else {
+                    row.style.display = ''; 
+                }
+            }
+            
+            if (isFilterActive) {
+                filterBtn.textContent = 'Mostrar Todos';
+                filterBtn.classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
+                filterBtn.classList.add('bg-gray-700', 'hover:bg-gray-800');
+            } else {
+                filterBtn.textContent = 'Mostrar solo incorrectos';
+                filterBtn.classList.remove('bg-gray-700', 'hover:bg-gray-800');
+                filterBtn.classList.add('bg-yellow-600', 'hover:bg-yellow-700');
+            }
+        }
+
+        function copyTableToClipboard() {
+            if (tableBody.rows.length === 0) {
+                showStatus('No hay datos en la tabla para copiar.', 'error');
+                return;
+            }
+            let textToCopy = '';
+            const headers = Array.from(document.querySelectorAll('#resultsTable thead th')).map(th => th.textContent);
+            textToCopy += headers.join('\t') + '\n';
+
+            for (const row of tableBody.rows) {
+                if (row.style.display !== 'none') {
+                    const rowData = Array.from(row.cells).map(cell => cell.textContent);
+                    textToCopy += rowData.join('\t') + '\n';
+                }
+            }
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showStatus('¡Tabla copiada al portapapeles!', 'success');
+                copyBtn.textContent = '¡Copiado!';
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copiar Tabla';
+                }, 2000);
+            } catch (err) {
+                showStatus('Error al copiar la tabla.', 'error');
+                console.error('Error al copiar: ', err);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function exportToXLS() {
+            if (tableBody.rows.length === 0) {
+                showStatus('No hay datos en la tabla para exportar.', 'error');
+                return;
+            }
+
+            const hiddenRows = [];
+            for (const row of tableBody.rows) {
+                if (row.style.display === 'none') {
+                    hiddenRows.push(row);
+                    row.style.display = '';
+                }
+            }
+
+            const table = document.getElementById('resultsTable');
+            const wb = XLSX.utils.table_to_book(table, {sheet: "Resultados FWB"});
+            
+            hiddenRows.forEach(row => row.style.display = 'none');
+            
+            const ws = wb.Sheets["Resultados FWB"];
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            const headerStyle = {
+                font: { bold: true, color: { rgb: "FFFFFF" } },
+                fill: { fgColor: { rgb: "2d3748" } },
+                alignment: { horizontal: "center", vertical: "center" }
+            };
+
+            let colWidths = [];
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                colWidths.push({ wch: 20 });
+                const cellRef = XLSX.utils.encode_cell({c: C, r: range.s.r});
+                if(ws[cellRef]) {
+                   ws[cellRef].s = headerStyle;
+                }
+            }
+
+            for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+                const statusCellRef = XLSX.utils.encode_cell({c: 6, r: R});
+                if (ws[statusCellRef]) {
+                    if (ws[statusCellRef].v === 'NO CORRESPONDE ENVIAR') {
+                        ws[statusCellRef].s = {
+                            font: { bold: true, color: { rgb: "C00000" } },
+                            fill: { fgColor: { rgb: "FFC7CE" } }
+                        };
+                    } else if (ws[statusCellRef].v === 'OK') {
+                         ws[statusCellRef].s = {
+                            font: { bold: true, color: { rgb: "006100" } },
+                            fill: { fgColor: { rgb: "C6EFCE" } }
+                        };
+                    }
+                }
+            }
+            ws['!cols'] = colWidths;
+
+            try {
+                XLSX.writeFile(wb, 'Resultados_FWB.xlsx');
+                showStatus('Exportado a XLS exitosamente!', 'success');
+            } catch (err) {
+                showStatus('Error al exportar la tabla.', 'error');
+                console.error('Error al exportar: ', err);
+            }
+        }
+        
+        updateTableVisibility();
+    </script>
+</body>
+</html>
+
