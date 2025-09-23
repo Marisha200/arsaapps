@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de SSIM</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f7f9;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 450px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+        input[type="date"] {
+            width: calc(100% - 24px);
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #resultado {
+            margin-top: 1.5rem;
+            font-size: 1.1rem;
+            background-color: #e9ecef;
+            padding: 1rem;
+            border-radius: 8px;
+            color: #2c3e50;
+        }
+        #explicacion {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Calculadora de Archivo SSIM</h2>
+    <label for="fechaVuelo">Ingresa la fecha del vuelo:</label>
+    <input type="date" id="fechaVuelo" value="2025-08-20">
+    <button onclick="calcularSSIM()">Calcular</button>
+    <div id="resultado">
+        </div>
+</div>
+
+<script>
+    function formatearFecha(fecha) {
+        return fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function calcularSSIM() {
+        const fechaInput = document.getElementById('fechaVuelo').value;
+        if (!fechaInput) {
+            document.getElementById('resultado').innerHTML = 'Por favor, selecciona una fecha.';
+            return;
+        }
+
+        // --- LÓGICA CORRECTA: BUSCAR HACIA ATRÁS 30-45 DÍAS ---
+
+        // 1. Establecer las fechas de la ventana de búsqueda
+        const fechaVuelo = new Date(fechaInput + 'T00:00:00');
+        const limiteSuperior = new Date(fechaVuelo);
+        limiteSuperior.setDate(fechaVuelo.getDate() - 30); // Límite más cercano: 30 días antes
+
+        const limiteInferior = new Date(fechaVuelo);
+        limiteInferior.setDate(fechaVuelo.getDate() - 45); // Límite más lejano: 45 días antes
+
+        // 2. Identificar las fechas candidatas de SSIM alrededor de la ventana
+        let mes = limiteSuperior.getMonth();
+        let anio = limiteSuperior.getFullYear();
+        
+        const candidatos = [
+            new Date(anio, mes, 20),
+            new Date(anio, mes, 5),
+            new Date(anio, mes - 1, 20) // Día 20 del mes anterior
+        ];
+        
+        let fechaSSIMEncontrada = null;
+
+        // 3. Encontrar cuál de los candidatos cae dentro de la ventana
+        for (const candidato of candidatos) {
+            if (candidato >= limiteInferior && candidato <= limiteSuperior) {
+                fechaSSIMEncontrada = candidato;
+                break; // Encontramos el correcto, no necesitamos seguir buscando
+            }
+        }
+
+        // 4. Mostrar el resultado
+        const resultadoDiv = document.getElementById('resultado');
+        if (fechaSSIMEncontrada) {
+            resultadoDiv.innerHTML = `El vuelo debe estar en el SSIM del <strong>${formatearFecha(fechaSSIMEncontrada)}</strong>.
+            <div id="explicacion">Este archivo se generó entre 30 y 45 días antes del vuelo.</div>`;
+        } else {
+            resultadoDiv.innerHTML = 'No se pudo encontrar un SSIM en la ventana de 30-45 días.';
+        }
+    }
+
+    // Ejecutar el cálculo al cargar la página
+    window.onload = calcularSSIM;
+</script>
+
+</body>
+</html>
