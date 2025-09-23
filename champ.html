@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mensajería CHAMP - ARSA</title>
+    <title>Mensajes SITA - ARSA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -23,7 +23,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
             </a>
-            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">Mensajería CHAMP</h1>
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">🔧 Mensajería CHAMP</h1>
         </div>
     </header>
 
@@ -31,16 +31,8 @@
     <main class="py-12">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-7xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
-                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2 text-center">Extractor de Datos XML</h2>
-                <p class="text-center text-gray-600 mb-6">Selecciona el tipo de mensaje y pega el contenido para generar una planilla.</p>
-                
-                <div class="mb-4 max-w-xs mx-auto">
-                    <label for="messageType" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Mensaje:</label>
-                    <select id="messageType" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="FWB" selected>FWB</option>
-                        <option value="FFM">FFM</option>
-                    </select>
-                </div>
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2 text-center">🔧 Extractor de Datos FWB / FFM </h2>
+                <p class="text-center text-gray-600 mb-6">Pega el contenido de tus mensajes (FWB o FFM). La herramienta detectará el tipo automáticamente.</p>
 
                 <textarea id="xmlInput" rows="15" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow mb-4" placeholder="Pega aquí el contenido de tus archivos XML..."></textarea>
 
@@ -68,7 +60,14 @@
                     <div class="border border-gray-200 rounded-lg overflow-hidden">
                         <table id="resultsTable" class="min-w-full divide-y divide-gray-200">
                             <thead id="tableHeader" class="bg-gray-100">
-                                <!-- Headers will be generated dynamically -->
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Tipo</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Fecha</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Vuelo / AWB</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Origen</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Destino</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                                </tr>
                             </thead>
                             <tbody id="resultsTableBody" class="bg-white divide-y divide-gray-200">
                                 <!-- Los resultados se insertarán aquí -->
@@ -86,294 +85,255 @@
     </footer>
     
     <script>
-        // --- Element Constants ---
-        const processBtn = document.getElementById('processBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const copyBtn = document.getElementById('copyBtn');
-        const exportBtn = document.getElementById('exportBtn');
-        const filterBtn = document.getElementById('filterBtn');
-        const xmlInput = document.getElementById('xmlInput');
-        const tableHeader = document.getElementById('tableHeader');
-        const tableBody = document.getElementById('resultsTableBody');
-        const statusMessage = document.getElementById('statusMessage');
-        const noResults = document.getElementById('noResults');
-        const messageType = document.getElementById('messageType');
-        let isFilterActive = false;
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Element Constants ---
+            const processBtn = document.getElementById('processBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const exportBtn = document.getElementById('exportBtn');
+            const filterBtn = document.getElementById('filterBtn');
+            const xmlInput = document.getElementById('xmlInput');
+            const tableHeader = document.getElementById('tableHeader');
+            const tableBody = document.getElementById('resultsTableBody');
+            const statusMessage = document.getElementById('statusMessage');
+            const noResults = document.getElementById('noResults');
+            let isFilterActive = false;
 
-        // --- Function Declarations ---
-        function showStatus(message, type = 'info') {
-            statusMessage.textContent = message;
-            statusMessage.className = 'text-center text-sm min-h-[20px]'; // Reset classes
-            if (type === 'success') {
-                statusMessage.classList.add('text-green-600');
-            } else if (type === 'error') {
-                statusMessage.classList.add('text-red-600');
-            } else {
-                statusMessage.classList.add('text-gray-600');
-            }
-        }
-
-        function updateTableVisibility() {
-            const tableContainer = document.getElementById('resultsTable').closest('.border');
-            if (tableBody.rows.length > 0) {
-                noResults.style.display = 'none';
-                tableContainer.style.display = 'block';
-            } else {
-                noResults.style.display = 'block';
-                tableContainer.style.display = 'none';
-            }
-        }
-
-        function updateTableHeaders(type) {
-            tableHeader.innerHTML = '';
-            let headers = [];
-            if (type === 'FWB') {
-                headers = ['Fecha', 'From', 'To', 'AWB', 'Origen', 'Destino', 'Status'];
-            } else if (type === 'FFM') {
-                headers = ['Fecha', 'Nro Vuelo', 'Origen', 'Destino', 'Status'];
-            }
-            const headerRow = document.createElement('tr');
-            headers.forEach(headerText => {
-                const th = document.createElement('th');
-                th.scope = 'col';
-                th.className = 'px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider';
-                th.textContent = headerText;
-                headerRow.appendChild(th);
-            });
-            tableHeader.appendChild(headerRow);
-        }
-
-        function processXMLs() {
-            const selectedType = messageType.value;
-            const rawText = xmlInput.value;
-            if (!rawText.trim()) {
-                showStatus('El campo de XML está vacío.', 'error');
-                return;
-            }
-            tableBody.innerHTML = '';
-
-            const isFWB = selectedType === 'FWB';
-            const forbiddenDestinations = isFWB 
-                ? ['EZE', 'AEP', 'MDZ', 'MDQ', 'SLA', 'COR', 'IGR', 'RGA', 'USH']
-                : ['AEP', 'EZE', 'BRC', 'CRD', 'COR', 'CNQ', 'FTE', 'EPA', 'EQS', 'FMA', 'MDQ', 'MDZ', 'NQN', 'PSS', 'IGR', 'RES', 'RGL', 'RGA', 'ROS', 'SLA', 'JUJ', 'RHD', 'SDE', 'UAQ', 'MJR', 'AFA', 'RSA', 'SFN', 'VDM', 'USH', 'PMY', 'REL', 'NEC', 'PEH', 'LGS', 'ORA', 'IRJ', 'TTG', 'CTJ', 'ING', 'CLX', 'GGS'];
-
-            // Split by the XML declaration to handle multiple files pasted together
-            const chunks = rawText.split(/(?=<\?xml)/g);
-            let xmlStrings = chunks.filter(chunk => chunk.trim().length > 0);
-
-            if (xmlStrings.length === 0 && rawText.trim().startsWith('<')) {
-                xmlStrings.push(rawText.trim());
+            // --- Function Declarations ---
+            function showStatus(message, type = 'info') {
+                statusMessage.textContent = message;
+                statusMessage.className = 'text-center text-sm min-h-[20px]';
+                if (type === 'success') statusMessage.classList.add('text-green-600');
+                else if (type === 'error') statusMessage.classList.add('text-red-600');
+                else statusMessage.classList.add('text-gray-600');
             }
 
-            let processedCount = 0, errorCount = 0, correctCount = 0, incorrectCount = 0;
-
-            if (xmlStrings.length === 0) {
-                showStatus('No se encontró contenido con formato XML para procesar.', 'error');
-                updateTableVisibility();
-                return;
-            }
-
-            const parser = new DOMParser();
-            xmlStrings.forEach(xmlString => {
-                if (!xmlString) return;
-                
-                try {
-                    // Clean the string before parsing
-                    let cleanXmlString = xmlString.trim();
-                    if (cleanXmlString.startsWith('"') && cleanXmlString.endsWith('"')) {
-                        cleanXmlString = cleanXmlString.substring(1, cleanXmlString.length - 1);
-                    }
-                    cleanXmlString = cleanXmlString.replace(/""/g, '"');
-
-                    const xmlDoc = parser.parseFromString(cleanXmlString, "application/xml");
-                    if (xmlDoc.querySelector("parsererror")) {
-                         throw new Error("XML mal formado.");
-                    }
-
-                    const getTagValue = (tagName, parentNode = xmlDoc) => {
-                        const tags = parentNode.querySelectorAll(`${tagName}`); // Removed direct child selector for flexibility
-                        return tags.length > 0 ? tags[tags.length - 1].textContent.trim() : 'N/A';
-                    };
-                    
-                    if (isFWB) {
-                        processFWB(xmlDoc, getTagValue, forbiddenDestinations);
-                    } else {
-                        processFFM(xmlDoc, getTagValue, forbiddenDestinations);
-                    }
-
-                } catch (e) {
-                    console.error("Error procesando un XML:", e.message, xmlString);
-                    errorCount++;
+            function updateTableVisibility() {
+                const tableContainer = document.getElementById('resultsTable').closest('.border');
+                if (tableBody.rows.length > 0) {
+                    noResults.style.display = 'none';
+                    tableContainer.style.display = 'block';
+                } else {
+                    noResults.style.display = 'block';
+                    tableContainer.style.display = 'none';
                 }
-            });
-
-            function processFWB(xmlDoc, getTagValue, forbiddenDests) {
-                const day = getTagValue('DateOfMonth');
-                const month = getTagValue('Month');
-                const year = getTagValue('Year');
-                const date = (day !== 'N/A' && month !== 'N/A' && year !== 'N/A') ? `${day}/${month}/${year}` : 'N/A';
-                const from = getTagValue('From');
-                const to = getTagValue('To');
-                const airlinePrefix = getTagValue('AirlinePrefix');
-                const awbSerial = getTagValue('AwbSerialNumber');
-                const awb = (airlinePrefix !== 'N/A' && awbSerial !== 'N/A') ? `${airlinePrefix}-${awbSerial}` : 'N/A';
-                const orgAirpCode = getTagValue('orgAirpCode');
-                const dstAirpCode = getTagValue('dstAirpCode');
+            }
+            
+            function getXmlStrings(rawText) {
+                // This regex robustly finds XML blocks, ignoring surrounding log text.
+                const xmlRegex = /<\?xml[\s\S]*?(?:<\/Message>|<\/SMLMessage>)/g;
+                let matches = rawText.match(xmlRegex);
                 
-                if ([date, from, to, awb, orgAirpCode, dstAirpCode].some(val => val === 'N/A')) return;
+                if (matches) {
+                    // Clean up any double quotes from string literals
+                    return matches.map(match => match.replace(/""/g, '"'));
+                }
 
-                const isIncorrect = forbiddenDests.includes(dstAirpCode.toUpperCase());
-                const row = tableBody.insertRow();
-                populateRow(row, isIncorrect, [date, from, to, awb, orgAirpCode, dstAirpCode]);
+                // Fallback for a single, non-standard XML block (e.g., without declaration)
+                if (rawText.trim().startsWith('<')) {
+                    return [rawText.trim().replace(/""/g, '"')];
+                }
+
+                return [];
             }
 
-            function processFFM(xmlDoc, getTagValue, forbiddenDests) {
-                const flightLegs = xmlDoc.querySelectorAll('FlightLeg');
-                flightLegs.forEach(leg => {
-                    const date = getTagValue('Date', xmlDoc);
-                    const carrier = getTagValue('Carrier', leg);
-                    const number = getTagValue('Number', leg);
-                    const day = getTagValue('Day', leg);
-                    const month = getTagValue('Month', leg);
-                    const flightNum = (carrier !== 'N/A' && number !== 'N/A' && day !== 'N/A' && month !== 'N/A')
-                        ? `${carrier}${number}/${day}${month}` : 'N/A';
-                    
-                    const origin = getTagValue('AirportOfLoading', leg);
-                    const destination = getTagValue('AirportOfArrival', leg);
-                    
-                    if ([date, flightNum, origin, destination].some(val => val === 'N/A')) return;
+            function parseFWB(xmlDoc) {
+                const messageNode = xmlDoc.querySelector('Message[type="FWB"]');
+                if (!messageNode) return null;
 
-                    const isIncorrect = forbiddenDests.includes(destination.toUpperCase());
+                const get = (tagName) => {
+                    const tags = messageNode.querySelectorAll(tagName);
+                    return tags.length > 0 ? tags[tags.length - 1].textContent.trim() : null;
+                }
+
+                const day = get('DateOfMonth'), month = get('Month'), year = get('Year');
+                const airlinePrefix = get('AirlinePrefix'), awbSerial = get('AwbSerialNumber');
+                
+                return {
+                    type: 'FWB',
+                    date: (day && month && year) ? `${day}/${month}/${year}` : 'N/A',
+                    identifier: (airlinePrefix && awbSerial) ? `${airlinePrefix}-${awbSerial}` : 'N/A',
+                    origin: get('orgAirpCode') || 'N/A',
+                    destination: get('dstAirpCode') || 'N/A'
+                };
+            }
+
+            function parseFFM(xmlDoc) {
+                const ffmNode = xmlDoc.querySelector('FFM');
+                if (!ffmNode) return null;
+
+                const get = (tagName, parent = ffmNode) => parent.querySelector(tagName)?.textContent.trim() ?? null;
+
+                const date = xmlDoc.querySelector('Date')?.textContent.split('T')[0] ?? 'N/A';
+                const flightNode = ffmNode.querySelector('Flight');
+                if (!flightNode) return null;
+
+                const carrier = get('Carrier', flightNode), number = get('Number', flightNode);
+                const day = get('Day', flightNode), month = get('Month', flightNode);
+
+                return {
+                    type: 'FFM',
+                    date: date,
+                    identifier: (carrier && number && day && month) ? `${carrier}${number}/${day}${month}` : 'N/A',
+                    origin: get('AirportOfLoading') || 'N/A',
+                    destination: get('AirportOfArrival') || 'N/A'
+                };
+            }
+
+            function processXMLs() {
+                tableBody.innerHTML = '';
+                const rawText = xmlInput.value;
+                if (!rawText.trim()) return showStatus('El campo de XML está vacío.', 'error');
+                
+                const xmlStrings = getXmlStrings(rawText);
+                if (xmlStrings.length === 0) return showStatus('No se encontró contenido XML válido.', 'error');
+
+                const allResults = [];
+                let errorCount = 0;
+                const parser = new DOMParser();
+
+                xmlStrings.forEach(xmlString => {
+                    try {
+                        const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+                        if (xmlDoc.querySelector("parsererror")) throw new Error("XML mal formado.");
+                        
+                        let result = parseFFM(xmlDoc) || parseFWB(xmlDoc);
+                        
+                        if (result && result.destination !== 'N/A' && result.destination !== null) {
+                            allResults.push(result);
+                        }
+                    } catch (e) {
+                        console.error("Error al parsear:", e.message, xmlString);
+                        errorCount++;
+                    }
+                });
+
+                renderResults(allResults);
+                updateStatusCounters(allResults.length, errorCount);
+            }
+
+            function renderResults(results) {
+                 const forbiddenDestinations = {
+                    FWB: ['EZE', 'AEP', 'MDZ', 'MDQ', 'SLA', 'COR', 'IGR', 'RGA', 'USH'],
+                    FFM: ['AEP', 'EZE', 'BRC', 'CRD', 'COR', 'CNQ', 'FTE', 'EPA', 'EQS', 'FMA', 'MDQ', 'MDZ', 'NQN', 'PSS', 'IGR', 'RES', 'RGL', 'RGA', 'ROS', 'SLA', 'JUJ', 'RHD', 'SDE', 'UAQ', 'MJR', 'AFA', 'RSA', 'SFN', 'VDM', 'USH', 'PMY', 'REL', 'NEC', 'PEH', 'LGS', 'ORA', 'IRJ', 'TTG', 'CTJ', 'ING', 'CLX', 'GGS']
+                };
+
+                results.forEach(res => {
+                    const isIncorrect = forbiddenDestinations[res.type].includes(res.destination.toUpperCase());
                     const row = tableBody.insertRow();
-                    populateRow(row, isIncorrect, [date, flightNum, origin, destination]);
+                    row.dataset.status = isIncorrect ? 'incorrect' : 'correct';
+                    
+                    let statusHTML = isIncorrect
+                        ? `<td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">NO CORRESPONDE ENVIAR</td>`
+                        : `<td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-bold">OK</td>`;
+
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-800 font-bold">${res.type}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${res.date}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">${res.identifier}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${res.origin}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${res.destination}</td>
+                        ${statusHTML}
+                    `;
                 });
             }
-            
-            function populateRow(row, isIncorrect, data) {
-                 row.dataset.status = isIncorrect ? 'incorrect' : 'correct';
-                 let rowHTML = '';
-                 data.forEach(item => {
-                     rowHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">${item}</td>`;
-                 });
-                 if (isIncorrect) {
-                     incorrectCount++;
-                     rowHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">NO CORRESPONDE ENVIAR</td>`;
-                 } else {
-                     correctCount++;
-                     rowHTML += `<td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-bold">OK</td>`;
-                 }
-                 row.innerHTML = rowHTML;
-                 processedCount++;
-            }
 
-            if (processedCount > 0) {
-                 showStatus(`Procesados ${processedCount} registros. Correctos: ${correctCount}, Incorrectos: ${incorrectCount}. ${errorCount > 0 ? `(${errorCount} con error de formato)` : ''}`, 'success');
-            } else if (errorCount > 0) {
-                 showStatus(`No se pudo procesar ningún mensaje. Se encontraron ${errorCount} con errores de formato.`, 'error');
-            } else {
-                showStatus('Procesamiento finalizado. No se encontraron datos relevantes para extraer.', 'info');
-            }
-            updateTableVisibility();
-        }
-
-        function clearAll() {
-            xmlInput.value = '';
-            tableBody.innerHTML = '';
-            showStatus('');
-            if (isFilterActive) {
-                toggleFilter(); 
-            }
-            updateTableVisibility();
-        }
-
-        function toggleFilter() {
-            isFilterActive = !isFilterActive;
-            Array.from(tableBody.rows).forEach(row => {
-                row.style.display = (isFilterActive && row.dataset.status === 'correct') ? 'none' : '';
-            });
-            
-            if (isFilterActive) {
-                filterBtn.textContent = 'Mostrar Todos';
-                filterBtn.classList.replace('bg-yellow-600', 'bg-gray-700');
-                filterBtn.classList.replace('hover:bg-yellow-700', 'hover:bg-gray-800');
-            } else {
-                filterBtn.textContent = 'Mostrar solo incorrectos';
-                filterBtn.classList.replace('bg-gray-700', 'bg-yellow-600');
-                filterBtn.classList.replace('hover:bg-gray-800', 'hover:bg-yellow-700');
-            }
-        }
-
-        function copyTableToClipboard() {
-            if (tableBody.rows.length === 0) return showStatus('No hay datos para copiar.', 'error');
-            
-            let textToCopy = Array.from(tableHeader.querySelectorAll('th')).map(th => th.textContent).join('\t') + '\n';
-            Array.from(tableBody.rows).forEach(row => {
-                if (row.style.display !== 'none') {
-                    textToCopy += Array.from(row.cells).map(cell => cell.textContent).join('\t') + '\n';
+            function updateStatusCounters(processedCount, errorCount) {
+                if (processedCount > 0) {
+                    const correctCount = tableBody.querySelectorAll('[data-status="correct"]').length;
+                    const incorrectCount = tableBody.querySelectorAll('[data-status="incorrect"]').length;
+                    showStatus(`Procesados ${processedCount} mensajes. Correctos: ${correctCount}, Incorrectos: ${incorrectCount}. ${errorCount > 0 ? `(${errorCount} con error)` : ''}`, 'success');
+                } else if (errorCount > 0) {
+                    showStatus(`No se pudo procesar ningún mensaje. ${errorCount} con errores de formato.`, 'error');
+                } else {
+                    showStatus('No se encontraron datos relevantes para extraer.', 'info');
                 }
-            });
-            
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                showStatus('¡Tabla copiada al portapapeles!', 'success');
-                copyBtn.textContent = '¡Copiado!';
-                setTimeout(() => { copyBtn.textContent = 'Copiar Tabla'; }, 2000);
-            }, () => showStatus('Error al copiar la tabla.', 'error'));
-        }
-
-        function exportToXLS() {
-            if (tableBody.rows.length === 0) return showStatus('No hay datos para exportar.', 'error');
-
-            const type = messageType.value;
-            const table = document.getElementById('resultsTable');
-            const wb = XLSX.utils.table_to_book(table, {sheet: `Resultados ${type}`});
-            const ws = wb.Sheets[`Resultados ${type}`];
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            const statusColIndex = Array.from(tableHeader.querySelectorAll('th')).findIndex(th => th.textContent === 'Status');
-
-            const headerStyle = { font: { bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "2d3748" } }, alignment: { horizontal: "center" } };
-            ws['!cols'] = Array.from({length: range.e.c + 1}, () => ({wch: 20}));
-
-            for (let C = range.s.c; C <= range.e.c; ++C) {
-                const cellRef = XLSX.utils.encode_cell({c: C, r: range.s.r});
-                if(ws[cellRef]) ws[cellRef].s = headerStyle;
+                updateTableVisibility();
             }
 
-            for (let R = range.s.r + 1; R <= range.e.r; ++R) {
-                if (statusColIndex > -1) {
-                    const statusCellRef = XLSX.utils.encode_cell({c: statusColIndex, r: R});
-                    if (ws[statusCellRef]) {
-                        const statusValue = ws[statusCellRef].v;
-                        if (statusValue === 'NO CORRESPONDE ENVIAR') {
-                            ws[statusCellRef].s = { font: { bold: true, color: { rgb: "C00000" } }, fill: { fgColor: { rgb: "FFC7CE" } } };
-                        } else if (statusValue === 'OK') {
-                            ws[statusCellRef].s = { font: { bold: true, color: { rgb: "006100" } }, fill: { fgColor: { rgb: "C6EFCE" } } };
+            function clearAll() {
+                xmlInput.value = '';
+                tableBody.innerHTML = '';
+                showStatus('');
+                if (isFilterActive) toggleFilter(); 
+                updateTableVisibility();
+            }
+
+            function toggleFilter() {
+                isFilterActive = !isFilterActive;
+                Array.from(tableBody.rows).forEach(row => {
+                    row.style.display = (isFilterActive && row.dataset.status === 'correct') ? 'none' : '';
+                });
+                
+                filterBtn.textContent = isFilterActive ? 'Mostrar Todos' : 'Mostrar solo incorrectos';
+                filterBtn.classList.toggle('bg-yellow-600', !isFilterActive);
+                filterBtn.classList.toggle('hover:bg-yellow-700', !isFilterActive);
+                filterBtn.classList.toggle('bg-gray-700', isFilterActive);
+                filterBtn.classList.toggle('hover:bg-gray-800', isFilterActive);
+            }
+
+            function copyTableToClipboard() {
+                if (tableBody.rows.length === 0) return showStatus('No hay datos para copiar.', 'error');
+                
+                let textToCopy = Array.from(tableHeader.querySelectorAll('th')).map(th => th.textContent).join('\t') + '\n';
+                Array.from(tableBody.rows).forEach(row => {
+                    if (row.style.display !== 'none') {
+                        textToCopy += Array.from(row.cells).map(cell => cell.textContent).join('\t') + '\n';
+                    }
+                });
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showStatus('¡Tabla copiada al portapapeles!', 'success');
+                    copyBtn.textContent = '¡Copiado!';
+                    setTimeout(() => { copyBtn.textContent = 'Copiar Tabla'; }, 2000);
+                }, () => showStatus('Error al copiar la tabla.', 'error'));
+            }
+
+            function exportToXLS() {
+                if (tableBody.rows.length === 0) return showStatus('No hay datos para exportar.', 'error');
+                
+                const table = document.getElementById('resultsTable');
+                const wb = XLSX.utils.table_to_book(table, {sheet: "Resultados CHAMP"});
+                const ws = wb.Sheets["Resultados CHAMP"];
+                const range = XLSX.utils.decode_range(ws['!ref']);
+                const statusColIndex = Array.from(tableHeader.querySelectorAll('th')).findIndex(th => th.textContent === 'Status');
+                const headerStyle = { font: { bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "2d3748" } }, alignment: { horizontal: "center" } };
+                ws['!cols'] = Array.from({length: range.e.c + 1}, () => ({wch: 22}));
+
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cellRef = XLSX.utils.encode_cell({c: C, r: range.s.r});
+                    if(ws[cellRef]) ws[cellRef].s = headerStyle;
+                }
+
+                for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+                    if (statusColIndex > -1) {
+                        const statusCellRef = XLSX.utils.encode_cell({c: statusColIndex, r: R});
+                        if (ws[statusCellRef]) {
+                            const statusValue = ws[statusCellRef].v;
+                            if (statusValue === 'NO CORRESPONDE ENVIAR') ws[statusCellRef].s = { font: { bold: true, color: { rgb: "C00000" } }, fill: { fgColor: { rgb: "FFC7CE" } } };
+                            else if (statusValue === 'OK') ws[statusCellRef].s = { font: { bold: true, color: { rgb: "006100" } }, fill: { fgColor: { rgb: "C6EFCE" } } };
                         }
                     }
                 }
-            }
 
-            try {
-                XLSX.writeFile(wb, `Resultados_${type}.xlsx`);
-                showStatus('Exportado a XLS exitosamente!', 'success');
-            } catch (err) {
-                showStatus('Error al exportar la tabla.', 'error');
+                try {
+                    XLSX.writeFile(wb, `Resultados_CHAMP.xlsx`);
+                    showStatus('Exportado a XLS exitosamente!', 'success');
+                } catch (err) {
+                    showStatus('Error al exportar la tabla.', 'error');
+                }
             }
-        }
-        
-        // --- Event Listeners ---
-        processBtn.addEventListener('click', processXMLs);
-        clearBtn.addEventListener('click', clearAll);
-        copyBtn.addEventListener('click', copyTableToClipboard);
-        exportBtn.addEventListener('click', exportToXLS);
-        filterBtn.addEventListener('click', toggleFilter);
-        messageType.addEventListener('change', () => {
-             updateTableHeaders(messageType.value);
-             clearAll();
+            
+            // --- Event Listeners ---
+            processBtn.addEventListener('click', processXMLs);
+            clearBtn.addEventListener('click', clearAll);
+            copyBtn.addEventListener('click', copyTableToClipboard);
+            exportBtn.addEventListener('click', exportToXLS);
+            filterBtn.addEventListener('click', toggleFilter);
+
+            // --- Initial Setup Call ---
+            updateTableVisibility();
         });
-
-        // --- Initial Setup Call ---
-        updateTableHeaders(messageType.value);
-        updateTableVisibility();
     </script>
 </body>
 </html>
