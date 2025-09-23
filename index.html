@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Herramientas - Marina ARSA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tool-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 min-h-screen flex flex-col">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl sm:text-5xl font-bold text-gray-900">Panel de Herramientas Aeronáuticas</h1>
+            <p class="mt-3 text-lg text-gray-600">Selecciona una herramienta para comenzar.</p>
+        </header>
+
+        <main class="flex-grow">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Card 1: Calculadora SSIM -->
+                <a href="calculadora_ssim.html" class="tool-card bg-white rounded-xl shadow-md overflow-hidden block">
+                    <div class="p-8">
+                        <div class="flex items-center">
+                            <div class="bg-blue-500 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M12 8h.01M15 8h.01M15 14h.01M18 17h.01M18 14h.01M18 11h.01M18 8h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zm-1 6a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2zM5 14a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H6a1 1 0 01-1-1v-2z" />
+                                </svg>
+                            </div>
+                            <h2 class="ml-4 text-2xl font-bold text-gray-900">Calculadora SSIM</h2>
+                        </div>
+                        <p class="mt-4 text-gray-600">Calcula y valida formatos de mensajes Standard Schedules Information Manual.</p>
+                    </div>
+                </a>
+
+                <!-- Card 2: Parser XML FWB -->
+                <a href="parser_xml_fwb.html" class="tool-card bg-white rounded-xl shadow-md overflow-hidden block">
+                    <div class="p-8">
+                        <div class="flex items-center">
+                             <div class="bg-green-500 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                            </div>
+                            <h2 class="ml-4 text-2xl font-bold text-gray-900">Parser XML FWB</h2>
+                        </div>
+                        <p class="mt-4 text-gray-600">Procesa, valida y extrae datos de mensajería FWB para generar planillas y reportes.</p>
+                    </div>
+                </a>
+
+                <!-- Card 3: FWB Mensajería CHAMP -->
+                <a href="mensajeria_champ.html" class="tool-card bg-white rounded-xl shadow-md overflow-hidden block">
+                     <div class="p-8">
+                        <div class="flex items-center">
+                            <div class="bg-purple-500 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                            </div>
+                            <h2 class="ml-4 text-2xl font-bold text-gray-900">Mensajería CHAMP</h2>
+                        </div>
+                        <p class="mt-4 text-gray-600">Plataforma para la gestión y visualización de mensajería de carga aérea (CHAMP).</p>
+                    </div>
+                </a>
+
+            </div>
+        </main>
+
+        <footer class="text-center mt-12 text-sm text-gray-500">
+            <p>Marina - ARSA</p>
+        </footer>
+    </div>
+
+</body>
+</html>
