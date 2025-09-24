@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Herramientas</title>
+    <title>Panel de Herramientas - ARSA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -11,80 +11,86 @@
             font-family: 'Inter', sans-serif;
         }
         .tool-card {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         }
         .tool-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-slate-50 text-gray-800">
 
-    <!-- Nuevo encabezado azul -->
-    <header class="bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-            <div class="flex justify-center items-center gap-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white transform -rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+    <!-- Encabezado -->
+    <header class="bg-gradient-to-r from-blue-600 to-blue-800 shadow-md">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-10 text-center">
+            <div class="flex justify-center items-center gap-x-4">
+                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-white transform -rotate-45">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                 </svg>
-                <h1 class="text-4xl sm:text-5xl font-bold text-white">Panel de Herramientas</h1>
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight">Panel de Herramientas ARSA</h1>
             </div>
-            <p class="mt-3 text-lg text-blue-200">Apps ✈️</p>
+            <p class="mt-3 text-lg text-blue-200">Selecciona una aplicación para comenzar</p>
         </div>
     </header>
 
-    <div class="container mx-auto p-4 sm:p-6 lg:p-8 flex flex-col">
-        <main class="flex-grow -mt-16">
+    <!-- Contenido Principal con las tarjetas -->
+    <main class="py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
                 <!-- Card 1: Calculadora SSIM -->
-                <a class='tool-card bg-white rounded-xl shadow-md overflow-hidden block' href='ssim.html'>
+                <a href="ssim.html" class="tool-card bg-white rounded-xl shadow-lg overflow-hidden block">
                     <div class="p-8">
                         <div class="flex items-center">
-                            <div class="bg-blue-500 p-3 rounded-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M12 8h.01M15 8h.01M15 14h.01M18 17h.01M18 14h.01M18 11h.01M18 8h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zm-1 6a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2zM5 14a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H6a1 1 0 01-1-1v-2z" />
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-blue-600">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M-4.5 12h22.5" />
                                 </svg>
                             </div>
-                            <h2 class="ml-4 text-2xl font-bold text-gray-900">Calculadora SSIM</h2>
+                            <h2 class="ml-4 text-xl font-bold text-gray-900">Calculadora SSIM</h2>
                         </div>
-                        <p class="mt-4 text-gray-600">Calcula y valida fecha del SSIM para un vuelo determinado.</p>
+                        <p class="mt-4 text-gray-600">Calcula y valida la fecha del SSIM para un vuelo determinado.</p>
                     </div>
                 </a>
-                <!-- Card 2: Parser XML FWB -->
-                <a href="parserxml.html" class="tool-card bg-white rounded-xl shadow-md overflow-hidden block">
+
+                <!-- Card 2: Parser XML -->
+                <a href="parserxml.html" class="tool-card bg-white rounded-xl shadow-lg overflow-hidden block">
                     <div class="p-8">
                         <div class="flex items-center">
-                            <div class="bg-green-500 p-3 rounded-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                             <div class="bg-green-100 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-600">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V5.75A2.25 2.25 0 0018 3.5H6A2.25 2.25 0 003.75 5.75v12.25A2.25 2.25 0 006 20.25z" />
                                 </svg>
                             </div>
-                            <h2 class="ml-4 text-2xl font-bold text-gray-900">Parser XML FWB</h2>
+                            <h2 class="ml-4 text-xl font-bold text-gray-900">Parser XML Genérico</h2>
                         </div>
-                        <p class="mt-4 text-gray-600">Procesa, valida y extrae datos de mensajería FWB para generar planillas y reportes.</p>
+                        <p class="mt-4 text-gray-600">Extrae datos de cualquier XML a una tabla simplificada.</p>
                     </div>
                 </a>
-                <!-- Card 3: FWB Mensajería CHAMP -->
-                <a href="champ.html" class="tool-card bg-white rounded-xl shadow-md overflow-hidden block">
-                    <div class="p-8">
+
+                <!-- Card 3: Mensajería CHAMP -->
+                <a href="champ.html" class="tool-card bg-white rounded-xl shadow-lg overflow-hidden block">
+                     <div class="p-8">
                         <div class="flex items-center">
-                            <div class="bg-purple-500 p-3 rounded-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            <div class="bg-purple-100 p-3 rounded-full">
+                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-purple-600">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834.166l-1.591 1.591M20.25 12h-2.25M17.834 17.834l-1.591-1.591M4.5 12H2.25m3.166.166l-1.591 1.591M5.25 5.25l1.591 1.591" />
                                 </svg>
                             </div>
-                            <h2 class="ml-4 text-2xl font-bold text-gray-900">Mensajería CHAMP</h2>
+                            <h2 class="ml-4 text-xl font-bold text-gray-900">Extractor FWB / FFM</h2>
                         </div>
-                        <p class="mt-4 text-gray-600">Plataforma la visualización de mensajería FWB y FFM (CHAMP).</p>
+                        <p class="mt-4 text-gray-600">Procesa y valida mensajería de carga aérea de CHAMP.</p>
                     </div>
                 </a>
             </div>
         </main>
-        <footer class="text-center mt-12 text-sm text-gray-500">
-            <p>Marina - ARSA</p>
-        </footer>
-    </div>
+    </main>
+    
+    <footer class="text-center py-8 text-sm text-gray-500">
+        <p>Marina - ARSA</p>
+    </footer>
+
 </body>
 </html>
 
