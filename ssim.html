@@ -53,7 +53,8 @@
 
 <script>
     function formatearFecha(fecha) {
-        return fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+        // Usamos timeZone: 'UTC' para evitar problemas con el cambio de día por la zona horaria del navegador.
+        return fecha.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' });
     }
 
     function calcularSSIM() {
@@ -63,22 +64,22 @@
             return;
         }
 
-        const fechaVuelo = new Date(fechaInput + 'T00:00:00');
+        // El input 'date' no tiene zona horaria, así que lo tratamos como UTC para evitar errores.
+        const fechaVuelo = new Date(fechaInput + 'T00:00:00Z'); 
+        
         const limiteSuperior = new Date(fechaVuelo);
-        limiteSuperior.setDate(fechaVuelo.getDate() - 30);
+        limiteSuperior.setUTCDate(fechaVuelo.getUTCDate() - 30);
 
         const limiteInferior = new Date(fechaVuelo);
-        limiteInferior.setDate(fechaVuelo.getDate() - 45);
+        limiteInferior.setUTCDate(fechaVuelo.getUTCDate() - 45);
 
-        let mes = limiteSuperior.getMonth();
-        let anio = limiteSuperior.getFullYear();
+        let mes = limiteSuperior.getUTCMonth();
+        let anio = limiteSuperior.getUTCFullYear();
                 
-        // Se buscan las 3 fechas de envío más probables: 20 y 5 del mes actual, y 20 del mes anterior.
-        // Esto cubre todos los casos de borde al buscar hacia atrás.
         const candidatos = [
-            new Date(anio, mes, 20),
-            new Date(anio, mes, 5),
-            new Date(anio, mes - 1, 20)
+            new Date(Date.UTC(anio, mes, 20)),
+            new Date(Date.UTC(anio, mes, 5)),
+            new Date(Date.UTC(anio, mes - 1, 20))
         ];
                 
         let fechaSSIMEncontrada = null;
@@ -92,36 +93,45 @@
 
         const resultadoDiv = document.getElementById('resultado');
         if (fechaSSIMEncontrada) {
+            // --- INICIO DE LA MODIFICACIÓN ---
+            
+            // Calculamos el inicio del período (D+30)
+            const fechaInicioPeriodo = new Date(fechaSSIMEncontrada);
+            fechaInicioPeriodo.setUTCDate(fechaSSIMEncontrada.getUTCDate() + 30);
+
+            // Calculamos el fin del período (D+45)
+            const fechaFinPeriodo = new Date(fechaSSIMEncontrada);
+            fechaFinPeriodo.setUTCDate(fechaSSIMEncontrada.getUTCDate() + 45);
+
+            // Generamos el nuevo texto con las fechas del período
             resultadoDiv.innerHTML = `
                 <div class="text-gray-800">
                     <p class="font-semibold text-sm sm:text-base">El vuelo debe estar en el SSIM del:</p>
                     <p class="text-lg sm:text-xl font-bold text-blue-600 mt-1">${formatearFecha(fechaSSIMEncontrada)}</p>
-                    <p id="explicacion" class="text-xs text-gray-500 mt-2">Este archivo se generó entre 30 y 45 días antes del vuelo.</p>
+                    <p class="text-xs text-gray-500 mt-2">
+                        Este archivo cubre del <b>${formatearFecha(fechaInicioPeriodo)}</b> (D+30) al <b>${formatearFecha(fechaFinPeriodo)}</b> (D+45).
+                    </p>
                 </div>`;
+            
+            // --- FIN DE LA MODIFICACIÓN ---
+
         } else {
             resultadoDiv.innerHTML = '<p class="text-red-600 font-semibold">No se pudo encontrar un SSIM en la ventana de 30-45 días.</p>';
         }
     }
 
-    // --- NUEVA FUNCIÓN DE INICIO ---
     function iniciarCalculadora() {
         const hoy = new Date();
         const anio = hoy.getFullYear();
-        // El mes es 0-indexado, se suma 1 y se rellena con '0' si es necesario
         const mes = String(hoy.getMonth() + 1).padStart(2, '0');
         const dia = String(hoy.getDate()).padStart(2, '0');
-        
-        // Formato YYYY-MM-DD requerido por el input type="date"
         const fechaDeHoy = `${anio}-${mes}-${dia}`;
         
-        // Establecer la fecha de hoy en el calendario
         document.getElementById('fechaVuelo').value = fechaDeHoy;
         
-        // Ejecutar el cálculo inicial al cargar la página
         calcularSSIM();
     }
 
-    // Ejecutar la función de inicio cuando la página se cargue
     window.onload = iniciarCalculadora;
 </script>
 
