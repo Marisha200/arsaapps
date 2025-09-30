@@ -310,7 +310,7 @@
                         const statusCellRef = XLSX.utils.encode_cell({c: statusColIndex, r: R});
                         if (ws[statusCellRef]) {
                             const statusValue = ws[statusCellRef].v;
-                            if (statusValue === 'NO CORRESPONDE ENVIAR') ws[statusCellRef].s = { font: { bold: true, color: { rgb: "C00000" } }, fill: { fgColor: { rgb: "FFC7CE" } } };
+                            if (statusValue === 'NO CORRESPONDE ENVIO') ws[statusCellRef].s = { font: { bold: true, color: { rgb: "C00000" } }, fill: { fgColor: { rgb: "FFC7CE" } } };
                             else if (statusValue === 'OK') ws[statusCellRef].s = { font: { bold: true, color: { rgb: "006100" } }, fill: { fgColor: { rgb: "C6EFCE" } } };
                         }
                     }
