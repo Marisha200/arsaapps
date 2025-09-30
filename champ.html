@@ -214,7 +214,7 @@
 
             function renderResults(results) {
                  const forbiddenDestinations = {
-                    FWB: ['EZE', 'AEP', 'MDZ', 'MDQ', 'SLA', 'COR', 'IGR', 'RGA', 'USH'],
+                    FWB: ['AEP', 'EZE', 'BRC', 'CRD', 'COR', 'CNQ', 'FTE', 'EPA', 'EQS', 'FMA', 'MDQ', 'MDZ', 'NQN', 'PSS', 'IGR', 'RES', 'RGL', 'RGA', 'ROS', 'SLA', 'JUJ', 'RHD', 'SDE', 'UAQ', 'MJR', 'AFA', 'RSA', 'SFN', 'VDM', 'USH', 'PMY', 'REL', 'NEC', 'PEH', 'LGS', 'ORA', 'IRJ', 'TTG', 'CTJ', 'ING', 'CLX', 'GGS'],
                     FFM: ['AEP', 'EZE', 'BRC', 'CRD', 'COR', 'CNQ', 'FTE', 'EPA', 'EQS', 'FMA', 'MDQ', 'MDZ', 'NQN', 'PSS', 'IGR', 'RES', 'RGL', 'RGA', 'ROS', 'SLA', 'JUJ', 'RHD', 'SDE', 'UAQ', 'MJR', 'AFA', 'RSA', 'SFN', 'VDM', 'USH', 'PMY', 'REL', 'NEC', 'PEH', 'LGS', 'ORA', 'IRJ', 'TTG', 'CTJ', 'ING', 'CLX', 'GGS']
                 };
 
@@ -224,7 +224,7 @@
                     row.dataset.status = isIncorrect ? 'incorrect' : 'correct';
                     
                     let statusHTML = isIncorrect
-                        ? `<td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">NO CORRESPONDE ENVIAR</td>`
+                        ? `<td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">NO CORRESPONDE ENVIO</td>`
                         : `<td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-bold">OK</td>`;
 
                     row.innerHTML = `
