@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador de Vuelos MVT/AD - ARSA</title>
+    <!-- Tailwind CSS para un diseño moderno y adaptable -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Ocultar elementos visualmente pero mantenerlos accesibles */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Encabezado azul con botón de volver -->
+    <header class="bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg relative">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 text-center">
+            <a class='absolute top-1/2 left-4 sm:left-6 lg:left-8 -translate-y-1/2 text-white hover:bg-white/20 p-2 rounded-full transition-colors' href='#'>
+                <span class="sr-only">Volver</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">Analizador de Vuelos MVT/AD</h1>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2 text-center">🤖 Detector de Errores de Procesamiento</h2>
+                <p class="text-center text-gray-600 mb-6">Pega aquí los datos de tu Excel (columnas "body" y "error") para encontrar vuelos con múltiples salidas sin procesar.</p>
+                
+                <textarea id="data-input" rows="12" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow mb-4" placeholder="Ejemplo:
+MVT/AD LA4584/12 ...    Flight already departed
+MVT/AD LA4624/12 ...    
+MVT/AD LA4624/12 ...    
+..."></textarea>
+                
+                <div class="flex flex-wrap items-center justify-center gap-3 mb-4">
+                    <button id="analyze-btn" class="bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Analizar Vuelos
+                    </button>
+                    <button id="clear-btn" class="bg-gray-500 text-white font-semibold py-2 px-5 rounded-lg hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        Limpiar Todo
+                    </button>
+                </div>
+                 <div id="statusMessage" class="text-center text-sm text-gray-600 min-h-[20px]"></div>
+
+                <!-- Área de resultados -->
+                <div id="results-container" class="mt-8 overflow-x-auto">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Resultados</h3>
+                    <div id="table-wrapper" class="border border-gray-200 rounded-lg overflow-hidden">
+                        <table id="resultsTable" class="min-w-full divide-y divide-gray-200">
+                           <thead class="bg-gray-100">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Vuelo Problemático</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Los resultados se insertarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <p id="noResults" class="text-center text-gray-500 py-8">Aún no hay datos para mostrar.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-4 text-sm text-gray-500">
+        <p>Marina - ARSA</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Elementos del DOM ---
+            const dataInput = document.getElementById('data-input');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const tableBody = document.getElementById('resultsTableBody');
+            const statusMessage = document.getElementById('statusMessage');
+            const noResults = document.getElementById('noResults');
+            const tableWrapper = document.getElementById('table-wrapper');
+
+            // --- Funciones de la aplicación ---
+
+            /**
+             * Muestra un mensaje de estado.
+             */
+            function showStatus(message, type = 'info') {
+                statusMessage.textContent = message;
+                statusMessage.className = 'text-center text-sm min-h-[20px]';
+                if (type === 'success') statusMessage.classList.add('text-green-600');
+                else if (type === 'error') statusMessage.classList.add('text-red-600');
+                else statusMessage.classList.add('text-gray-600');
+            }
+
+            /**
+             * Actualiza la visibilidad de la tabla de resultados.
+             */
+            function updateTableVisibility() {
+                if (tableBody.rows.length > 0) {
+                    noResults.style.display = 'none';
+                    tableWrapper.style.display = 'block';
+                } else {
+                    noResults.style.display = 'block';
+                    tableWrapper.style.display = 'none';
+                }
+            }
+            
+            /**
+             * Función principal que se ejecuta al hacer clic en el botón de analizar.
+             */
+            function analyzeFlightData() {
+                const rawData = dataInput.value.trim();
+                if (!rawData) {
+                    showStatus('Por favor, pega algunos datos para analizar.', 'error');
+                    return;
+                }
+
+                const lines = rawData.split('\n');
+                const flightGroups = {};
+                const flightIdRegex = /[A-Z0-9]{2}\d{3,4}\/\d{2}/;
+
+                lines.forEach(line => {
+                    const match = line.match(flightIdRegex);
+                    if (match) {
+                        const flightId = match[0];
+                        const parts = line.split('\t');
+                        const error = parts.length > 1 ? parts.slice(1).join(' ').trim() : '';
+                        if (!flightGroups[flightId]) flightGroups[flightId] = [];
+                        flightGroups[flightId].push(error);
+                    }
+                });
+
+                const problematicFlights = Object.keys(flightGroups).filter(flightId => {
+                    const errors = flightGroups[flightId];
+                    const hasMultipleEntries = errors.length > 1;
+                    const allErrorsAreEmpty = errors.every(e => e === '');
+                    return hasMultipleEntries && allErrorsAreEmpty;
+                });
+                
+                renderResults(problematicFlights);
+            }
+
+            /**
+             * Muestra los resultados en la tabla.
+             */
+            function renderResults(problematicFlights) {
+                tableBody.innerHTML = ''; // Limpiar resultados anteriores
+
+                if (problematicFlights.length > 0) {
+                    problematicFlights.forEach(flightId => {
+                        const row = tableBody.insertRow();
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-mono">${flightId}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600 font-bold">ERROR DE PROCESAMIENTO</td>
+                        `;
+                    });
+                    showStatus(`Se encontraron ${problematicFlights.length} vuelos con problemas.`, 'success');
+                } else {
+                    showStatus('¡Análisis completo! No se encontraron vuelos con problemas.', 'success');
+                }
+                updateTableVisibility();
+            }
+
+            /**
+             * Limpia el área de texto y los resultados.
+             */
+            function clearAll() {
+                dataInput.value = '';
+                tableBody.innerHTML = '';
+                showStatus('');
+                updateTableVisibility();
+                dataInput.focus();
+            }
+
+            // --- Asignación de Eventos ---
+            analyzeBtn.addEventListener('click', analyzeFlightData);
+            clearBtn.addEventListener('click', clearAll);
+
+            // --- Llamada Inicial ---
+            updateTableVisibility();
+        });
+    </script>
+</body>
+</html>
+
