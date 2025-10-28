@@ -19,36 +19,33 @@
 </head>
 <body class="bg-slate-50 min-h-screen">
 
-    <!-- Cabecera Azul (NUEVO) -->
-    <header class="bg-blue-600 shadow-md">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Contenedor relativo para centrar título y alinear flecha -->
-            <div class="relative flex items-center justify-center h-16">
-                
-                <!-- Enlace de Volver (Izquierda) -->
-                <a href="index.html" class="absolute left-0 flex items-center text-blue-200 hover:text-white transition-colors" aria-label="Volver al panel">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                    </svg>
-                </a>
-                
-                <!-- Título de la Cabecera (Centro) -->
-                <h1 class="text-xl font-bold text-white tracking-tight">
-                   Calculadora de Días
-                </h1>
-                
-            </div>
+    <!-- Cabecera Azul (MODIFICADA para ser igual a la de SSIM) -->
+    <header class="bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg relative">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 text-center">
+            
+            <!-- Enlace de Volver (Estilo SSIM) -->
+            <a class='absolute top-1/2 left-4 sm:left-6 lg:left-8 -translate-y-1/2 text-white hover:bg-white/20 p-2 rounded-full transition-colors' href='index.html' aria-label="Volver al panel">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            
+            <!-- Título de la Cabecera (Estilo SSIM) -->
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
+                Calculadora de Días
+            </h1>
+            
         </div>
     </header>
 
-    <!-- Contenido Principal (MODIFICADO) -->
-    <main class="py-10">
+    <!-- Contenido Principal (MODIFICADO para coincidir con py-12 de SSIM) -->
+    <main class="py-12">
         <!-- Tarjeta principal de la calculadora (MODIFICADO) -->
         <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md mx-auto">
             
             <!-- Título y Subtítulo (MODIFICADO) -->
             <h2 class="text-xl font-bold text-gray-800 text-center mb-2">
-                📅 Calcular Días entre Fechas
+               📅 Calcular Días entre Fechas
             </h2>
             <p class="text-sm text-gray-600 text-center mb-6">
                 Selecciona una fecha de inicio y una de fin.
@@ -154,4 +151,5 @@
 
 </body>
 </html>
+
 
