@@ -13,7 +13,8 @@
         .tool-card {
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         }
-        .tool-card:hover {
+        /* Se aplica el hover solo a las tarjetas que son enlaces */
+        a.tool-card:hover {
             transform: translateY(-8px);
             box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         }
@@ -38,7 +39,7 @@
     <main class="py-12">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                
+
                 <!-- Card 1: Calculadora SSIM -->
                 <a class='tool-card bg-white rounded-xl shadow-lg overflow-hidden block' href='/ssim'>
                     <div class="p-8">
@@ -84,8 +85,8 @@
                     </div>
                 </a>
 
-                <!-- Card 4: Detector Errores MVT/AD (NUEVA) -->
-                <a class='tool-card bg-white rounded-xl shadow-lg overflow-hidden block' href='/departures.html'>
+                <!-- Card 4: Detector Errores MVT/AD -->
+                <a class='tool-card bg-white rounded-xl shadow-lg overflow-hidden block' href='/departures'>
                     <div class="p-8">
                         <div class="flex items-center">
                             <div class="bg-orange-100 p-3 rounded-full">
@@ -98,15 +99,126 @@
                         <p class="mt-4 text-gray-600">Analiza logs de MVT/AD para encontrar procesamientos duplicados.</p>
                     </div>
                 </a>
+                
+                <!-- Card 5: Calculadora de Días (NUEVA INTEGRACIÓN) -->
+                <div class="tool-card bg-white rounded-xl shadow-lg overflow-hidden p-8">
+                    <!-- Encabezado de la tarjeta -->
+                    <div class="flex items-center">
+                        <div class="bg-indigo-100 p-3 rounded-full">
+                            <!-- Icono de Calendario -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-indigo-600">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25m17.25 3v2.25m-17.25 0V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18" />
+                            </svg>
+                        </div>
+                        <h2 class="ml-4 text-xl font-bold text-gray-900">Calculadora de Días</h2>
+                    </div>
+                    <p class="mt-4 text-gray-600 mb-6">Calcula la cantidad de días entre dos fechas.</p>
+                    
+                    <!-- Contenido de la calculadora -->
+                    <div class="space-y-4">
+                        <!-- Fecha de Inicio -->
+                        <div>
+                            <label for="date1" class="block text-sm font-medium text-gray-700 mb-2">
+                                Fecha de Inicio
+                            </label>
+                            <input type="date" id="date1" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" aria-label="Fecha de inicio">
+                        </div>
+                        <!-- Fecha de Fin -->
+                        <div>
+                            <label for="date2" class="block text-sm font-medium text-gray-700 mb-2">
+                                Fecha de Fin
+                            </label>
+                            <input type="date" id="date2" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" aria-label="Fecha de fin">
+                        </div>
+                    </div>
+                    
+                    <!-- Botón de Cálculo -->
+                    <button id="calculateBtn" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 mt-6">
+                        Calcular Diferencia
+                    </button>
+                    
+                    <!-- Contenedor para Mensajes de Error (con altura fija para evitar saltos) -->
+                    <div id="error" class="text-red-600 text-center mt-4 text-sm font-medium h-5"></div>
+                    
+                    <!-- Contenedor para el Resultado (con altura fija para evitar saltos) -->
+                    <div id="result" class="text-gray-900 text-center mt-4 text-xl font-bold h-7"></div>
+                </div>
+                
+                <!-- Puedes agregar más tarjetas aquí -->
 
             </div>
         </div>
     </main>
-    
+
     <footer class="text-center py-8 text-sm text-gray-500">
         <p>Marina - ARSA</p>
     </footer>
+    
+    <!-- SCRIPT DE LA CALCULADORA DE DÍAS -->
+    <script>
+        // Esperamos a que el DOM esté completamente cargado
+        // Envolvemos el script en un bloque para evitar conflictos con otras tarjetas
+        (() => {
+            // El script solo se ejecuta si los elementos existen
+            const date1Input = document.getElementById('date1');
+            const date2Input = document.getElementById('date2');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+
+            // Si no encontramos los elementos de la calculadora, no hacemos nada
+            if (!date1Input || !date2Input || !calculateBtn || !resultDiv || !errorDiv) {
+                return;
+            }
+            
+            // Establecemos la fecha de inicio con la fecha actual
+            const today = new Date();
+            const year = today.getFullYear();
+            // getMonth() es 0-indexado (0=enero), por eso sumamos 1
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const todayFormatted = `${year}-${month}-${day}`;
+            
+            date1Input.value = todayFormatted;
+            
+            // Agregamos un evento de clic al botón
+            calculateBtn.addEventListener('click', () => {
+                // Limpiamos resultados y errores anteriores
+                resultDiv.textContent = '';
+                errorDiv.textContent = '';
+                
+                // Obtenemos los valores de las fechas
+                const date1Str = date1Input.value;
+                const date2Str = date2Input.value;
+                
+                // Verificamos que ambas fechas estén seleccionadas
+                if (!date1Str || !date2Str) {
+                    errorDiv.textContent = 'Por favor, selecciona ambas fechas.';
+                    return;
+                }
+                
+                // Creamos objetos Date a partir de los strings
+                const date1 = new Date(date1Str);
+                const date2 = new Date(date2Str);
+                
+                // Calculamos la diferencia en milisegundos
+                const timeDiff = date2.getTime() - date1.getTime();
+                
+                // Convertimos la diferencia de milisegundos a días
+                const msPerDay = 1000 * 60 * 60 * 24;
+                
+                // Usamos Math.abs para obtener siempre un número positivo.
+                // Usamos Math.round para manejar cambios de horario
+                const dayDiff = Math.abs(Math.round(timeDiff / msPerDay));
+                
+                // Formateamos el texto del resultado (singular vs. plural)
+                const dayText = dayDiff === 1 ? 'día' : 'días';
+                
+                // Mostramos el resultado
+                resultDiv.textContent = `La diferencia es de ${dayDiff} ${dayText}.`;
+            });
+        })(); // Fin del script de la calculadora
+    </script>
 
 </body>
 </html>
-
