@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Días - ARSA</title>
+    
+    <!-- Importamos Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Importamos la fuente Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 flex flex-col items-center justify-center min-h-screen">
+
+    <!-- Tarjeta principal de la calculadora -->
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md mx-4">
+        
+        <!-- Título y Subtítulo -->
+        <h1 class="text-2xl font-bold text-gray-800 text-center mb-2">
+            Calculadora de Días
+        </h1>
+        <p class="text-sm text-gray-600 text-center mb-6">
+            Calcula la cantidad de días entre dos fechas.
+        </p>
+        
+        <!-- Contenido de la calculadora -->
+        <div class="space-y-4">
+            <!-- Fecha de Inicio -->
+            <div>
+                <label for="date1" class="block text-sm font-medium text-gray-700 mb-2">
+                    Fecha de Inicio
+                </label>
+                <input type="date" id="date1" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" aria-label="Fecha de inicio">
+            </div>
+            <!-- Fecha de Fin -->
+            <div>
+                <label for="date2" class="block text-sm font-medium text-gray-700 mb-2">
+                    Fecha de Fin
+                </label>
+                <input type="date" id="date2" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" aria-label="Fecha de fin">
+            </div>
+        </div>
+        
+        <!-- Botón de Cálculo -->
+        <button id="calculateBtn" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 mt-6">
+            Calcular Diferencia
+        </button>
+        
+        <!-- Contenedor para Mensajes de Error (con altura fija para evitar saltos) -->
+        <div id="error" class="text-red-600 text-center mt-4 text-sm font-medium h-5"></div>
+        
+        <!-- Contenedor para el Resultado (con altura fija para evitar saltos) -->
+        <div id="result" class="text-gray-900 text-center mt-4 text-xl font-bold h-7"></div>
+    </div>
+    
+    <!-- Botón de Volver -->
+    <a href="index.html" class="mt-6 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+        &larr; Volver al panel
+    </a>
+
+    <!-- SCRIPT DE LA CALCULADORA -->
+    <script>
+        // Esperamos a que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', () => {
+            // El script solo se ejecuta si los elementos existen
+            const date1Input = document.getElementById('date1');
+            const date2Input = document.getElementById('date2');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+
+            if (!date1Input || !date2Input || !calculateBtn || !resultDiv || !errorDiv) {
+                return;
+            }
+            
+            // Establecemos la fecha de inicio con la fecha actual
+            const today = new Date();
+            const year = today.getFullYear();
+            // getMonth() es 0-indexado (0=enero), por eso sumamos 1
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const todayFormatted = `${year}-${month}-${day}`;
+            
+            date1Input.value = todayFormatted;
+            
+            // Agregamos un evento de clic al botón
+            calculateBtn.addEventListener('click', () => {
+                // Limpiamos resultados y errores anteriores
+                resultDiv.textContent = '';
+                errorDiv.textContent = '';
+                
+                // Obtenemos los valores de las fechas
+                const date1Str = date1Input.value;
+                const date2Str = date2Input.value;
+                
+                // Verificamos que ambas fechas estén seleccionadas
+                if (!date1Str || !date2Str) {
+                    errorDiv.textContent = 'Por favor, selecciona ambas fechas.';
+                    return;
+                }
+                
+                // Creamos objetos Date a partir de los strings
+                const date1 = new Date(date1Str);
+                const date2 = new Date(date2Str);
+                
+                // Calculamos la diferencia en milisegundos
+                const timeDiff = date2.getTime() - date1.getTime();
+                
+                // Convertimos la diferencia de milisegundos a días
+                const msPerDay = 1000 * 60 * 60 * 24;
+                
+                // Usamos Math.abs para obtener siempre un número positivo.
+                // Usamos Math.round para manejar cambios de horario
+                const dayDiff = Math.abs(Math.round(timeDiff / msPerDay));
+                
+                // Formateamos el texto del resultado (singular vs. plural)
+                const dayText = dayDiff === 1 ? 'día' : 'días';
+                
+                // Mostramos el resultado
+                resultDiv.textContent = `La diferencia es de ${dayDiff} ${dayText}.`;
+            });
+        }); // Fin del script de la calculadora
+    </script>
+
+</body>
+</html>
